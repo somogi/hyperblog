@@ -1,53 +1,60 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Turnstile CAPTCHA</title>
-    <script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-            async
-            defer
-    ></script>
-    <style>
-        html,
-        body {
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-          background-color: transparent;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Turnstile CAPTCHA</title>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f9f9f9;
+    }
+
+    .cf-turnstile {
+      transform: scale(1.05);
+      transform-origin: center;
+    }
+  </style>
 </head>
 <body>
-<div
-        class="cf-turnstile"
-        data-sitekey="0x4AAAAAAB_d3bF8bjrH3ZHZ"
-        data-callback="onSuccess"
-        data-error-callback="onError"
-        data-theme="light"
-></div>
+  <div
+    class="cf-turnstile"
+    data-sitekey="0x4AAAAAAB_gmlY-YKJavLRr"
+    data-callback="onTurnstileSuccess"
+    data-error-callback="onTurnstileError"
+    data-theme="light">
+  </div>
 
-<script>
-    function onSuccess(token) {
-      if (window.TurnstileInterface && TurnstileInterface.onTokenReceived) {
-        TurnstileInterface.onTokenReceived(token);
-      }
-    }
-
-    function onError() {
-      if (window.TurnstileInterface && TurnstileInterface.onError) {
-        TurnstileInterface.onError("Error al cargar el captcha");
-      }
-    }
-
+  <script>
+    // ✅ Llamado cuando el usuario completa el captcha correctamente
     function onTurnstileSuccess(token) {
-        // Llama al método expuesto desde Android
+      if (window.Android && Android.onTokenReceived) {
         Android.onTokenReceived(token);
+      } else if (window.TurnstileInterface && TurnstileInterface.onTokenReceived) {
+        TurnstileInterface.onTokenReceived(token);
+      } else {
+        console.log("Token recibido (sin interfaz Android):", token);
+      }
     }
-</script>
+
+    // 🚨 Llamado cuando hay error al cargar o validar el captcha
+    function onTurnstileError() {
+      const errorMessage = "Error al cargar el captcha. Intente nuevamente.";
+      if (window.Android && Android.onError) {
+        Android.onError(errorMessage);
+      } else if (window.TurnstileInterface && TurnstileInterface.onError) {
+        TurnstileInterface.onError(errorMessage);
+      } else {
+        console.error(errorMessage);
+      }
+    }
+  </script>
 </body>
 </html>
