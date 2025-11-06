@@ -43,6 +43,11 @@
         TurnstileInterface.onError("Error al cargar el captcha");
       }
     }
+
+    function onTurnstileSuccess(token) {
+        // Llama al método expuesto desde Android
+        Android.onTokenReceived(token);
+    }
 </script>
 </body>
 </html>
